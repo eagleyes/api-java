@@ -42,14 +42,14 @@ stages:
           script: |
             # Write your commands here
             #set -x
-            echo ${application_name}
+            echo ${APPLICATION_NAME}
             
             #IN case we want to set an azure variable:
             #echo '##vso[task.setvariable variable=a]20'
             
             #application_name=${application_name} #now from pipeline variable
             application_version=1.0.0-SNAPSHOT
-            build_dir="$(System.DefaultWorkingDirectory)/build/${$APPLICATION_NAME}"
+            build_dir="$(System.DefaultWorkingDirectory)/build/${APPLICATION_NAME}"
             config_dir="${build_dir}/config"
             config_file="${config_dir}/application.cfg"
             publish_dir="$(System.DefaultWorkingDirectory)/publish"
@@ -68,16 +68,16 @@ stages:
               mkdir -p $publish_dir
             fi
 
-            cp $(System.DefaultWorkingDirectory)/${$APPLICATION_NAME}/target/${$APPLICATION_NAME}-*-bootable.jar $build_dir/
+            cp $(System.DefaultWorkingDirectory)/${APPLICATION_NAME}/target/${APPLICATION_NAME}-*-bootable.jar $build_dir/
             cp -r $(System.DefaultWorkingDirectory)/crm-admin/admin $build_dir/
             
             #Create configuration file
             touch ${config_file}
-            echo "export APPLICATION_NAME=${$APPLICATION_NAME} >> $config_file"
-            echo "export APPLICATION_VERSION=${$APPLICATION_NAME} >> $config_file"
+            echo "export APPLICATION_NAME=${APPLICATION_NAME} >> $config_file"
+            echo "export APPLICATION_VERSION=${APPLICATION_NAME} >> $config_file"
 
 
-            cd ${build_dir}/../ ; tar -cvzf ${publish_dir}/${$APPLICATION_NAME}-${application_version}.tgz ${$APPLICATION_NAME}
+            cd ${build_dir}/../ ; tar -cvzf ${publish_dir}/${APPLICATION_NAME}-${application_version}.tgz ${APPLICATION_NAME}
             ls -la $(System.DefaultWorkingDirectory)/**
           failOnStderr: true
            
