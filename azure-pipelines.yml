@@ -78,6 +78,7 @@ stages:
 
 
             cd ${build_dir}/../ ; tar -cvzf ${publish_dir}/${APPLICATION_NAME}-${application_version}.tgz ${APPLICATION_NAME}
+            cp $(System.DefaultWorkingDirectory)/test.sh $(System.DefaultWorkingDirectory)/publish/
             ls -la $(System.DefaultWorkingDirectory)/**
           failOnStderr: true
            
@@ -119,6 +120,24 @@ stages:
               env:
                 application_name : "allo"
                 app_name: ${application_name}
+            - task: SSH@0
+              name: "test"
+              inputs:
+                sshEndpoint: 'ssh - RD3'
+                runOptions: 'inline'
+                inline: 'env;echo "-${application_name}-${app_name}-"'
+                readyTimeout: '20000'
+              env:
+                application_name : "allo"
+                app_name: ${application_name}
+            - task: SSH@0
+              inputs:
+                sshEndpoint: 'ssh - RD3'
+                runOptions: 'script'
+                scriptPath: '$(Pipeline.Workspace)/authApp/test.sh'
+                args: 'allo ${application_name} ${APPLICATION_NAME}'
+                readyTimeout: '20000'
+            
             - task: SSH@0
               name: restartApplication
               inputs:
