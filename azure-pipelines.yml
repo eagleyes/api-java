@@ -7,7 +7,7 @@ pool:
     vmImage: 'ubuntu-latest'
 
 trigger:
-      - master
+      - azure
 #test
 #Stages Configuration (to be ran sequentially)
 stages:
