@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
@@ -54,10 +54,26 @@ if [ ! -d ${work_dir} ];then
     mkdir -p ${work_dir}
 fi
 
+restart(){
+        stop
+        status;rtrn=$?
+        if [ $rtrn != 0 ];then
+                for i in {1..5}
+                do
+                        sleep 10
+                        status;rtrn=$?
+                        if [ $rtrn == 0 ];then
+                                break
+                        fi
+
+                done
+        fi
+        start
+}
 start() {
     #get status
     status ; rtrn_cd=$?
-    if [ $rtrn_cd -eq 1 ];then 
+    if [ $rtrn_cd -eq 1 ];then
         #application running , must stop it first
         echo "application already running"
         exit 0
@@ -71,7 +87,7 @@ start() {
 }
 
 stop() {
-    pid=cat ${pid_file}
+    pid=`cat ${pid_file}`
     if [ -z $pid ];then
         echo "pid does not exists for application ${APPLICATION_NAME} assuming it is not running"
     else
@@ -80,7 +96,7 @@ stop() {
     fi
 }
 
-#status returns 
+#status returns
 # 0 : not running
 # 1 : running
 status(){
