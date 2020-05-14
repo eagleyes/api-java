@@ -21,7 +21,6 @@ stages:
     - job: Build
       steps:
       - task: Maven@3
-      - task: Maven@3
         inputs:
           mavenPomFile: 'pom.xml'
           options: '-Dmaven.test.failure.ignore=true'
