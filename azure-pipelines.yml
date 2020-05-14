@@ -114,9 +114,11 @@ stages:
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'inline'
-                inline: 'echo "-${application_name}-${APPLICATION_NAME}-"'
+                inline: 'echo "-${application_name}-${app_name}-"'
                 readyTimeout: '20000'
-           
+              env:
+                application_name : ${APPLICATION_NAME}
+                app_name: ${application_name}
             - task: SSH@0
               name: restartApplication
               inputs:
