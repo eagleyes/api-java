@@ -6,6 +6,9 @@
 pool:
     vmImage: 'ubuntu-latest'
 
+variables:
+#  - applications ... Applications variable is defined as a pipeline input variable
+
 trigger:
       - azure
 #test
@@ -18,6 +21,19 @@ stages:
     - job: Build
       steps:
       - task: Maven@3
+      - task: Maven@3
+        inputs:
+          mavenPomFile: 'pom.xml'
+          options: '-Dmaven.test.failure.ignore=true'
+          publishJUnitResults: true
+          testResultsFiles: '**/surefire-reports/TEST-*.xml'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.11'
+          mavenVersionOption: 'Default'
+          mavenOptions: '-Xmx3072m'
+          mavenAuthenticateFeed: false
+          effectivePomSkip: false
+          sonarQubeRunAnalysis: false
         inputs:
           mavenPomFile: 'pom.xml'
           mavenOptions: '-Xmx3072m'
@@ -34,7 +50,12 @@ stages:
           script: |
             # Write your commands here
             #set -x
-            application_name=crm-auth-spring-boot-server
+            echo ${applications}
+            
+            #IN case we want to set an azure variable:
+            #echo '##vso[task.setvariable variable=a]20'
+            
+            application_name=${applications}
             application_version=1.0.0-SNAPSHOT
             build_dir="$(System.DefaultWorkingDirectory)/build/${application_name}"
             config_dir="${build_dir}/config"
