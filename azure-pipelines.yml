@@ -117,7 +117,7 @@ stages:
                 inline: 'echo "-${application_name}-${app_name}-"'
                 readyTimeout: '20000'
               env:
-                application_name : ${APPLICATION_NAME}
+                application_name : "allo"
                 app_name: ${application_name}
             - task: SSH@0
               name: restartApplication
