@@ -71,6 +71,7 @@ restart(){
         start
 }
 start() {
+    echo "Starting application ${APPLICATION_NAME}"
     #get status
     status ; rtrn_cd=$?
     if [ $rtrn_cd -eq 1 ];then
@@ -87,6 +88,7 @@ start() {
 }
 
 stop() {
+    echo "Stopping application ${APPLICATION_NAME}"
     status ; rtrn_cd=$?
     if [ $rtrn_cd -eq 1 ];then
         pid=`cat ${pid_file}`
@@ -107,14 +109,14 @@ status(){
         return 0
     else
         echo "Getting status of application $APPLICATION_NAME, pid $pid"
-        ps -fp $pid ; rtrn_cd=$?
+        ps -fp $pid > /dev/null ; rtrn_cd=$?
         if [ $rtrn_cd -eq 0 ];then
             #application running
-            echo "application running"
+            echo "application ${APPLICATION_NAME} running"
             return 1
         else
             #application not running
-            echo "application NOT running"
+            echo "application ${APPLICATION_NAME} NOT running"
             return 0
         fi
     fi
