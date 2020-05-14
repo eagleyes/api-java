@@ -6,7 +6,7 @@
 pool:
     vmImage: 'ubuntu-latest'
 
-variables:
+#variables:
 #  - applications ... Applications variable is defined as a pipeline input variable
 
 trigger:
