@@ -111,7 +111,7 @@ stages:
                 readyTimeout: '20000'
 
             - task: SSH@0
-              name: "test"
+              name: "testInline"
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'inline'
@@ -121,22 +121,16 @@ stages:
                 application_name : "allo"
                 app_name: ${application_name}
             - task: SSH@0
-              name: "test"
-              inputs:
-                sshEndpoint: 'ssh - RD3'
-                runOptions: 'inline'
-                inline: 'env;echo "-${application_name}-${app_name}-"'
-                readyTimeout: '20000'
-              env:
-                application_name : "allo"
-                app_name: ${application_name}
-            - task: SSH@0
+              name: "TestScript"
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'script'
                 scriptPath: '$(Pipeline.Workspace)/authApp/test.sh'
-                args: 'allo ${application_name} ${APPLICATION_NAME}'
+                args: 'allo ${application_name} ${APPLICATION_NAME} ${app_name}'
                 readyTimeout: '20000'
+              env:
+                application_name : "allo"
+                app_name: ${application_name}
             
             - task: SSH@0
               name: restartApplication
