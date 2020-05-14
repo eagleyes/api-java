@@ -103,6 +103,14 @@ stages:
                 targetFolder: '/var/data/finuser/builds/'
                 readyTimeout: '20000'
                 failOnEmptySource: true
+            - task: CopyFilesOverSSH@0
+              inputs:
+                sshEndpoint: 'ssh - RD3'
+                sourceFolder: '$(Pipeline.Workspace)/authApp/'
+                contents: 'test.sh'
+                targetFolder: '/var/data/finuser/admin/'
+                readyTimeout: '20000'
+                failOnEmptySource: true
             - task: Bash@3
               inputs:
                 targetType: 'inline'
@@ -123,7 +131,7 @@ stages:
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'inline'
-                inline: 'env;echo "-${application_name}-${app_name}-"'
+                inline: '/var/data/finuser/admin/test.sh ${application_name} ${APPLICATION_NAME} $(application_name) $(APPLICATION_NAME)'
                 readyTimeout: '20000'
               env:
                 application_name : "allo"
