@@ -108,12 +108,15 @@ stages:
                 runOptions: 'commands'
                 commands: 'ls -la /var/data/finuser/builds'
                 readyTimeout: '20000'
+
             - task: SSH@0
+              name: "test"
               inputs:
                 sshEndpoint: 'ssh - RD3'
-                runOptions: 'commands'
-                commands: 'rm -rf /var/data/finuser/apps/${APPLICATION_NAME}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
+                runOptions: 'inline'
+                inline: 'echo "-${application_name}-${APPLICATION_NAME}-"'
                 readyTimeout: '20000'
+           
             - task: SSH@0
               name: restartApplication
               inputs:
