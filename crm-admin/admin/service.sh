@@ -87,12 +87,13 @@ start() {
 }
 
 stop() {
-    pid=`cat ${pid_file}`
-    if [ -z $pid ];then
-        echo "pid does not exists for application ${APPLICATION_NAME} assuming it is not running"
-    else
+    status ; rtrn_cd=$?
+    if [ $rtrn_cd -eq 1 ];then
+        pid=`cat ${pid_file}`
         echo "killing pid $pid"
         kill -15 $pid
+    else
+        echo "application not running , then nothing to stop"
     fi
 }
 
