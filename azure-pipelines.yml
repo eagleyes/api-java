@@ -8,6 +8,7 @@ pool:
 
 #variables:
 #  - application_name ... application_name variable is defined as a pipeline input variable
+#                         To use it in bash , it must be referred as ${APPLICATION_NAME}
 
 trigger:
       - azure
@@ -48,7 +49,7 @@ stages:
             
             #application_name=${application_name} #now from pipeline variable
             application_version=1.0.0-SNAPSHOT
-            build_dir="$(System.DefaultWorkingDirectory)/build/${application_name}"
+            build_dir="$(System.DefaultWorkingDirectory)/build/${$APPLICATION_NAME}"
             config_dir="${build_dir}/config"
             config_file="${config_dir}/application.cfg"
             publish_dir="$(System.DefaultWorkingDirectory)/publish"
@@ -67,16 +68,16 @@ stages:
               mkdir -p $publish_dir
             fi
 
-            cp $(System.DefaultWorkingDirectory)/${application_name}/target/${application_name}-*-bootable.jar $build_dir/
+            cp $(System.DefaultWorkingDirectory)/${$APPLICATION_NAME}/target/${$APPLICATION_NAME}-*-bootable.jar $build_dir/
             cp -r $(System.DefaultWorkingDirectory)/crm-admin/admin $build_dir/
             
             #Create configuration file
             touch ${config_file}
-            echo "export APPLICATION_NAME=${application_name} >> $config_file"
-            echo "export APPLICATION_VERSION=${application_version} >> $config_file"
+            echo "export APPLICATION_NAME=${$APPLICATION_NAME} >> $config_file"
+            echo "export APPLICATION_VERSION=${$APPLICATION_NAME} >> $config_file"
 
 
-            cd ${build_dir}/../ ; tar -cvzf ${publish_dir}/${application_name}-${application_version}.tgz ${application_name}
+            cd ${build_dir}/../ ; tar -cvzf ${publish_dir}/${$APPLICATION_NAME}-${application_version}.tgz ${$APPLICATION_NAME}
             ls -la $(System.DefaultWorkingDirectory)/**
           failOnStderr: true
            
