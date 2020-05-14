@@ -134,5 +134,5 @@ stages:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'inline'
                 inline: |
-                  /var/data/finuser/apps/$(application_name)/admin/service.sh restart                  
+                  /var/data/finuser/apps/$(application_name)/admin/service.sh restart
                 readyTimeout: '20000'
