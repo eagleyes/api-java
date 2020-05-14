@@ -111,14 +111,14 @@ stages:
                 targetFolder: '/var/data/finuser/admin/'
                 readyTimeout: '20000'
                 failOnEmptySource: true
-            - task: Bash@3
-              inputs:
-                targetType: 'inline'
-                script: |
-                  # Write your commands here
-                  
-                  echo '##vso[task.setvariable variable=application_name]testlower'
-                  echo '##vso[task.setvariable variable=APPLICATION_NAME]testupper'
+            #- task: Bash@3
+            #  inputs:
+            #    targetType: 'inline'
+            #    script: |
+            #      # Write your commands here
+            #      
+            #      echo '##vso[task.setvariable variable=application_name]testlower'
+            #      echo '##vso[task.setvariable variable=APPLICATION_NAME]testupper'
             - task: SSH@0
               inputs:
                 sshEndpoint: 'ssh - RD3'
