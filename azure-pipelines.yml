@@ -131,7 +131,7 @@ stages:
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'inline'
-                inline: 'chmod +x /var/data/finuser/admin/test.sh;/var/data/finuser/admin/test.sh ${application_name} ${APPLICATION_NAME}'
+                inline: 'chmod +x /var/data/finuser/admin/test.sh;/var/data/finuser/admin/test.sh $(application_name) $(APPLICATION_NAME)'
                 readyTimeout: '20000'
               env:
                 application_name : "allo"
