@@ -73,8 +73,8 @@ stages:
             
             #Create configuration file
             touch ${config_file}
-            echo "export APPLICATION_NAME=${APPLICATION_NAME} >> $config_file"
-            echo "export APPLICATION_VERSION=${APPLICATION_NAME} >> $config_file"
+            echo "export APPLICATION_NAME=${APPLICATION_NAME}" >> $config_file
+            echo "export APPLICATION_VERSION=${APPLICATION_NAME}" >> $config_file
 
 
             cd ${build_dir}/../ ; tar -cvzf ${publish_dir}/${APPLICATION_NAME}-${application_version}.tgz ${APPLICATION_NAME}
