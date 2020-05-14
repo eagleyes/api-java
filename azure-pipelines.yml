@@ -112,12 +112,12 @@ stages:
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'commands'
-                commands: 'rm -rf /var/data/finuser/apps/${application_name}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
+                commands: 'rm -rf /var/data/finuser/apps/${APPLICATION_NAME}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
                 readyTimeout: '20000'
             - task: SSH@0
               name: restartApplication
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'commands'
-                commands: 'rm -rf /var/data/finuser/apps/${application_name}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
+                commands: 'rm -rf /var/data/finuser/apps/${APPLICATION_NAME}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
                 readyTimeout: '20000'
