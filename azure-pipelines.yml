@@ -114,7 +114,7 @@ stages:
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'inline'
-                inline: 'echo "-${application_name}-${app_name}-"'
+                inline: 'env;echo "-${application_name}-${app_name}-"'
                 readyTimeout: '20000'
               env:
                 application_name : "allo"
