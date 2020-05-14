@@ -7,7 +7,7 @@ pool:
     vmImage: 'ubuntu-latest'
 
 #variables:
-#  - applications ... Applications variable is defined as a pipeline input variable
+#  - application_name ... application_name variable is defined as a pipeline input variable
 
 trigger:
       - azure
@@ -41,12 +41,12 @@ stages:
           script: |
             # Write your commands here
             #set -x
-            echo ${applications}
+            echo ${application_name}
             
             #IN case we want to set an azure variable:
             #echo '##vso[task.setvariable variable=a]20'
             
-            application_name=${applications}
+            #application_name=${application_name} #now from pipeline variable
             application_version=1.0.0-SNAPSHOT
             build_dir="$(System.DefaultWorkingDirectory)/build/${application_name}"
             config_dir="${build_dir}/config"
@@ -67,7 +67,7 @@ stages:
               mkdir -p $publish_dir
             fi
 
-            cp $(System.DefaultWorkingDirectory)/crm-auth-spring-boot-server/target/crm-auth-spring-boot-server-*-bootable.jar $build_dir/
+            cp $(System.DefaultWorkingDirectory)/${application_name}/target/${application_name}-*-bootable.jar $build_dir/
             cp -r $(System.DefaultWorkingDirectory)/crm-admin/admin $build_dir/
             
             #Create configuration file
@@ -111,12 +111,12 @@ stages:
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'commands'
-                commands: 'rm -rf /var/data/finuser/apps/crm-auth-spring-boot-server; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/crm-auth-spring-boot-server-1.0.0-SNAPSHOT.tgz'
+                commands: 'rm -rf /var/data/finuser/apps/${application_name}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
                 readyTimeout: '20000'
             - task: SSH@0
               name: restartApplication
               inputs:
                 sshEndpoint: 'ssh - RD3'
                 runOptions: 'commands'
-                commands: 'rm -rf /var/data/finuser/apps/crm-auth-spring-boot-server; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/crm-auth-spring-boot-server-1.0.0-SNAPSHOT.tgz'
+                commands: 'rm -rf /var/data/finuser/apps/${application_name}; tar -C /var/data/finuser/apps/ -xvzf /var/data/finuser/builds/${application_name}-1.0.0-SNAPSHOT.tgz'
                 readyTimeout: '20000'
