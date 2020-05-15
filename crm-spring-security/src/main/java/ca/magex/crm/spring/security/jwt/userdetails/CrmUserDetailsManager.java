@@ -26,22 +26,15 @@ public class CrmUserDetailsManager implements UserDetailsManager, UserDetailsPas
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		try {
-			User user = userService.findUserByUsername(username);
-			String encodedPassword = passwordService.getEncodedPassword(username);
-			
-			return new CrmUserDetails(user, encodedPassword);
-		}
-		catch(ItemNotFoundException e) {
-			throw new UsernameNotFoundException(e.getMessage());
-		}
+		User user = userService.findUserByUsername(username);
+		return new CrmUserDetails(user, passwordService.getEncodedPassword(user.getUserId().toString()), user.getRoles());
 	}
 
 	@Override
 	public UserDetails updatePassword(UserDetails userDetails, String newPassword) {
 		User user = userService.findUser(new Identifier(userDetails.getUsername()));
-		passwordService.updatePassword(user.getUsername(), newPassword);
-		return new CrmUserDetails(user, newPassword);
+		passwordService.updatePassword(user.getUserId().toString(), newPassword);
+		return new CrmUserDetails(user, newPassword, user.getRoles());
 	}
 
 	@Override
