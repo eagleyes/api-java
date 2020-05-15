@@ -27,188 +27,180 @@ import ca.magex.crm.api.system.Status;
 @Profile(MagexCrmProfiles.CRM_DATASTORE_DECENTRALIZED)
 public class HazelcastLookupService implements CrmLookupService {
 
-	public static String HZ_STATUS_KEY = "statuses";
-	public static String HZ_COUNTRY_KEY = "countries";
-	public static String HZ_LANGUAGE_KEY = "languages";
-	public static String HZ_SALUTATION_KEY = "salutations";
-	public static String HZ_SECTOR_KEY = "sectors";
-	public static String HZ_UNIT_KEY = "units";
-	public static String HZ_CLASSIFICATION_KEY = "classifications";
-		
-	@Autowired private HazelcastInstance hzInstance;		
+	@Autowired private HazelcastInstance hzInstance;
 	
 	@Override
 	public List<Status> findStatuses() {
-		return hzInstance.getList(HZ_STATUS_KEY);
+		return hzInstance.getList("statuses");
 	}
 
 	@Override
 	public Status findStatusByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_STATUS_KEY)
+		return hzInstance.getList("statuses")
 				.stream()
 				.map((s) -> (Status) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Status '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public Status findStatusByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_STATUS_KEY)
+		return hzInstance.getList("statuses")
 				.stream()
 				.map((s) -> (Status) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Status[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}	
 
 	@Override
 	public List<Country> findCountries() {
-		return hzInstance.getList(HZ_COUNTRY_KEY);
+		return hzInstance.getList("countries");
 	}
 
 	@Override
 	public Country findCountryByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_COUNTRY_KEY)
+		return hzInstance.getList("countries")
 				.stream()
 				.map((s) -> (Country) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Country '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public Country findCountryByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_COUNTRY_KEY)
+		return hzInstance.getList("countries")
 				.stream()
 				.map((s) -> (Country) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Country[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}
 
 	@Override
 	public List<Language> findLanguages() {
-		return hzInstance.getList(HZ_LANGUAGE_KEY);
+		return hzInstance.getList("languages");
 	}
 
 	@Override
 	public Language findLanguageByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_LANGUAGE_KEY)
+		return hzInstance.getList("languages")
 				.stream()
 				.map((s) -> (Language) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Language '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public Language findLanguageByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_LANGUAGE_KEY)
+		return hzInstance.getList("languages")
 				.stream()
 				.map((s) -> (Language) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Language[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}
 
 	@Override
 	public List<Salutation> findSalutations() {
-		return hzInstance.getList(HZ_SALUTATION_KEY);
+		return hzInstance.getList("salutations");
 	}
 
 	@Override
 	public Salutation findSalutationByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_SALUTATION_KEY)
+		return hzInstance.getList("salutations")
 				.stream()
 				.map((s) -> (Salutation) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Salutation '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public Salutation findSalutationByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_SALUTATION_KEY)
+		return hzInstance.getList("salutations")
 				.stream()
 				.map((s) -> (Salutation) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("Salutation[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}
 
 	@Override
 	public List<BusinessSector> findBusinessSectors() {
-		return hzInstance.getList(HZ_SECTOR_KEY);
+		return hzInstance.getList("sectors");
 	}
 
 	@Override
 	public BusinessSector findBusinessSectorByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_SECTOR_KEY)
+		return hzInstance.getList("sectors")
 				.stream()
 				.map((s) -> (BusinessSector) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("BusinessSector '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public BusinessSector findBusinessSectorByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_SECTOR_KEY)
+		return hzInstance.getList("sectors")
 				.stream()
 				.map((s) -> (BusinessSector) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("BusinessSector[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}
 
 	@Override
 	public List<BusinessUnit> findBusinessUnits() {
-		return hzInstance.getList(HZ_UNIT_KEY);
+		return hzInstance.getList("units");
 	}
 
 	@Override
 	public BusinessUnit findBusinessUnitByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_UNIT_KEY)
+		return hzInstance.getList("units")
 				.stream()
 				.map((s) -> (BusinessUnit) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("BusinessUnit '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public BusinessUnit findBusinessUnitByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_UNIT_KEY)
+		return hzInstance.getList("units")
 				.stream()
 				.map((s) -> (BusinessUnit) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("BusinessUnit[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}
 
 	@Override
 	public List<BusinessClassification> findBusinessClassifications() {
-		return hzInstance.getList(HZ_CLASSIFICATION_KEY);
+		return hzInstance.getList("classifications");
 	}
 
 	@Override
 	public BusinessClassification findBusinessClassificationByCode(String code) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_CLASSIFICATION_KEY)
+		return hzInstance.getList("classifications")
 				.stream()
 				.map((s) -> (BusinessClassification) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getCode(), code))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("BusinessClassification '" + code + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(code));
 	}
 
 	@Override
 	public BusinessClassification findBusinessClassificationByLocalizedName(Locale locale, String name) throws ItemNotFoundException {
-		return hzInstance.getList(HZ_CLASSIFICATION_KEY)
+		return hzInstance.getList("classifications")
 				.stream()
 				.map((s) -> (BusinessClassification) s)
 				.filter((s) -> StringUtils.equalsIgnoreCase(s.getName(locale), name))
 				.findFirst()
-				.orElseThrow(() -> new ItemNotFoundException("BusinessClassification[" + locale + "] '" + name + "'"));
+				.orElseThrow(() -> new ItemNotFoundException(locale + "," + name));
 	}
 }

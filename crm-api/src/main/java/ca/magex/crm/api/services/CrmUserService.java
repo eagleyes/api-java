@@ -4,8 +4,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 
 import ca.magex.crm.api.filters.Paging;
 import ca.magex.crm.api.filters.UsersFilter;
@@ -49,7 +50,7 @@ public interface CrmUserService {
 		@NotNull String newPassword
 	);
 
-	String resetPassword(
+	boolean resetPassword(
 		@NotNull Identifier userId
 	);
 
@@ -61,16 +62,6 @@ public interface CrmUserService {
 		@NotNull UsersFilter filter, 
 		@NotNull Paging paging
 	);
-	
-	default boolean isValidPasswordFormat(String password) {
-		if (StringUtils.isBlank(password))
-			return false;
-		if (password.length() < 5 || password.length() > 255)
-			return false;
-		if (!password.matches("[A-Za-z0-9\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)]+"))
-			return false;
-		return true;
-	}
 	
 	default Page<User> findUsers(@NotNull UsersFilter filter) {
 		return findUsers(filter, defaultUsersPaging());
@@ -85,7 +76,22 @@ public interface CrmUserService {
 	};
 	
 	default Paging defaultUsersPaging() {
-		return new Paging(UsersFilter.getSortOptions().get(0));
+		return new Paging(SORT_OPTIONS.get(0));
+	}
+	
+	public static final List<Sort> SORT_OPTIONS = List.of(
+		Sort.by(Order.asc("username")),
+		Sort.by(Order.desc("username")),
+		Sort.by(Order.asc("personName")),
+		Sort.by(Order.desc("personName")),
+		Sort.by(Order.asc("organizationName")),
+		Sort.by(Order.desc("organizationName")),
+		Sort.by(Order.asc("status")),
+		Sort.by(Order.desc("status"))
+	);
+	
+	default List<Sort> getUsersSortOptions() {
+		return SORT_OPTIONS;
 	}
 	
 }

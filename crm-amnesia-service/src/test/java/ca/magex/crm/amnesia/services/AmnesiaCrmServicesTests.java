@@ -14,7 +14,7 @@ import ca.magex.crm.test.TestConfig;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TestConfig.class})
 @ActiveProfiles(MagexCrmProfiles.CRM_DATASTORE_CENTRALIZED)
-public class AmnesiaCrmServicesTests {
+public class AmnesiaOrganizationServiceTest {
 
 	@Autowired private CrmServicesTestSuite crmServicesTest;
 	

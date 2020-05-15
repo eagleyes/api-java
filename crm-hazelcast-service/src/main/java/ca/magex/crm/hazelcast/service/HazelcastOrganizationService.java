@@ -1,5 +1,6 @@
 package ca.magex.crm.hazelcast.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,20 +20,16 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 
 import ca.magex.crm.api.MagexCrmProfiles;
-import ca.magex.crm.api.crm.LocationSummary;
 import ca.magex.crm.api.crm.OrganizationDetails;
 import ca.magex.crm.api.crm.OrganizationSummary;
-import ca.magex.crm.api.crm.PersonSummary;
 import ca.magex.crm.api.exceptions.ItemNotFoundException;
 import ca.magex.crm.api.filters.OrganizationsFilter;
 import ca.magex.crm.api.filters.PageBuilder;
 import ca.magex.crm.api.filters.Paging;
 import ca.magex.crm.api.services.CrmLocationService;
-import ca.magex.crm.api.services.CrmLookupService;
 import ca.magex.crm.api.services.CrmOrganizationService;
 import ca.magex.crm.api.services.CrmPermissionService;
 import ca.magex.crm.api.services.CrmPersonService;
-import ca.magex.crm.api.services.StructureValidationService;
 import ca.magex.crm.api.system.FilteredPage;
 import ca.magex.crm.api.system.Identifier;
 import ca.magex.crm.api.system.Status;
@@ -50,7 +47,6 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 	// these need to be marked as lazy because spring proxies this class due to the @Validated annotation
 	// if these are not lazy then they are autowired before the proxy is created and we get a cyclic dependency
 	// so making them lazy allows the proxy to be created before autowiring
-	@Autowired @Lazy private CrmLookupService lookupService;
 	@Autowired @Lazy private CrmPermissionService permissionService;
 	@Autowired @Lazy private CrmLocationService locationService;
 	@Autowired @Lazy private CrmPersonService personService;
@@ -67,12 +63,11 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 				organizationDisplayName,
 				null,
 				null,
-				groups);
-		validate(orgDetails);
+				Collections.emptyList());
 		organizations.put(orgDetails.getOrganizationId(), orgDetails);
 		return SerializationUtils.clone(orgDetails);
 	}
-	
+
 	@Override
 	public OrganizationDetails updateOrganizationDisplayName(
 			@NotNull Identifier organizationId, 
@@ -87,7 +82,6 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 			return SerializationUtils.clone(orgDetails);
 		}
 		orgDetails = orgDetails.withDisplayName(name);
-		validate(orgDetails);
 		organizations.put(organizationId, orgDetails);
 		return SerializationUtils.clone(orgDetails);
 	}
@@ -101,16 +95,12 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 		if (orgDetails == null) {
 			throw new ItemNotFoundException("Organization ID '" + organizationId + "'");
 		}
-		PersonSummary personSummary = personService.findPersonSummary(personId); // ensure the person exists
-		if (!personSummary.getOrganizationId().equals(organizationId)) {
-			throw new ItemNotFoundException("Person ID '" + personId + "'");
-		}
+		personService.findPersonSummary(personId); // ensure the person exists
 		/* nothing to update here */
 		if (orgDetails.getMainContactId() != null && orgDetails.getMainContactId().equals(personId)) {
 			return SerializationUtils.clone(orgDetails);
 		}
 		orgDetails = orgDetails.withMainContactId(personId);
-		validate(orgDetails);
 		organizations.put(organizationId, orgDetails);
 		return SerializationUtils.clone(orgDetails);
 	}
@@ -124,16 +114,12 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 		if (orgDetails == null) {
 			throw new ItemNotFoundException("Organization ID '" + organizationId + "'");
 		}
-		LocationSummary locationSummary = locationService.findLocationSummary(locationId); // ensure the location exists
-		if (!locationSummary.getOrganizationId().equals(organizationId)) {
-			throw new ItemNotFoundException("Location ID '" + locationId + "'");
-		}
+		locationService.findLocationSummary(locationId); // ensure the location exists
 		/* nothing to update here */
 		if (orgDetails.getMainLocationId() != null && orgDetails.getMainLocationId().equals(locationId)) {
 			return SerializationUtils.clone(orgDetails);
 		}
 		orgDetails = orgDetails.withMainLocationId(locationId);
-		validate(orgDetails);
 		organizations.put(organizationId, orgDetails);
 		return SerializationUtils.clone(orgDetails);
 	}
@@ -155,7 +141,6 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 			return SerializationUtils.clone(orgDetails);
 		}
 		orgDetails = orgDetails.withGroups(groups);
-		validate(orgDetails);
 		organizations.put(organizationId, orgDetails);
 		return SerializationUtils.clone(orgDetails);
 	}
@@ -172,7 +157,6 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 			return SerializationUtils.clone(orgDetails);
 		}
 		orgDetails = orgDetails.withStatus(Status.ACTIVE);
-		validate(orgDetails);
 		organizations.put(organizationId, orgDetails);
 		return SerializationUtils.clone(orgDetails);
 	}
@@ -189,13 +173,8 @@ public class HazelcastOrganizationService implements CrmOrganizationService {
 			return SerializationUtils.clone(orgDetails);
 		}
 		orgDetails = orgDetails.withStatus(Status.INACTIVE);
-		validate(orgDetails);
 		organizations.put(organizationId, orgDetails);
 		return SerializationUtils.clone(orgDetails);
-	}
-
-	private OrganizationDetails validate(OrganizationDetails organization) {
-		return new StructureValidationService(lookupService, permissionService, this, locationService).validate(organization);
 	}
 
 	@Override
