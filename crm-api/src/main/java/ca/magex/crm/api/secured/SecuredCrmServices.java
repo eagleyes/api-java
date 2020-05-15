@@ -86,7 +86,7 @@ public final class SecuredCrmServices implements Crm {
 			CrmUserService userService, CrmUserPolicy userPolicy,
 			CrmPermissionService permissionsService, CrmPermissionPolicy permissionsPolicy) {
 		super();
-		this.validationService = new StructureValidationService(lookupService, organizationService, locationService);
+		this.validationService = new StructureValidationService(lookupService, permissionsService, organizationService, locationService);
 		this.initializationService = initializationService;
 		this.lookupService = lookupService;
 		this.organizationService = organizationService;
@@ -457,7 +457,7 @@ public final class SecuredCrmServices implements Crm {
 	}
 
 	@Override
-	public boolean resetPassword(Identifier userId) {
+	public String resetPassword(Identifier userId) {
 		return userService.resetPassword(userId);
 	}
 

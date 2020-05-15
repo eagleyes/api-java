@@ -17,7 +17,11 @@ public interface CrmPermissionService {
 		@NotNull GroupsFilter filter,
 		@NotNull Paging paging
 	);
-
+	
+	default GroupsFilter defaultGroupsFilter() {
+		return new GroupsFilter();
+	};
+	
 	Group findGroup(
 		@NotNull Identifier groupId
 	);
@@ -48,7 +52,11 @@ public interface CrmPermissionService {
 		@NotNull RolesFilter filter, 
 		@NotNull Paging paging
 	);
-
+	
+	default RolesFilter defaultRolesFilter() {
+		return new RolesFilter();
+	};
+	
 	Role findRole(
 		@NotNull Identifier roleId
 	);

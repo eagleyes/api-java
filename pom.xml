@@ -35,6 +35,7 @@
 		<module>crm-auth-spring-boot-server</module>
 		 -->
 		<!-- GraphQL Endpoint Implementation -->
+<<<<<<< HEAD
 		<!-- <module>crm-graphql-spring-controllers</module>				
 		<module>crm-graphql-spring-boot-server</module>		
 		<module>crm-graphql-client</module>
@@ -49,6 +50,22 @@
 		<module>crm-restful-spring-controllers</module>
 		<module>crm-restful-spring-boot-server</module> -->
 		<!-- <module>crm-restful-client</module>  -->
+=======
+<!-- 		<module>crm-graphql-spring-controllers</module>				 -->
+<!-- 		<module>crm-graphql-spring-boot-server</module>		 -->
+<!-- 		<module>crm-graphql-client</module> -->
+		
+		<!-- Eureka Service Registry -->
+<!-- 		<module>crm-eureka-spring-boot-server</module> -->
+<!--  		<module>crm-graphql-spring-boot-eureka-client-server</module> -->
+<!--  		<module>crm-graphql-spring-boot-feign-client</module> -->
+		
+		<!-- REST Endpoint Implementation -->
+<!-- 		<module>crm-restful-json</module>		 -->
+<!-- 		<module>crm-restful-spring-controllers</module> -->
+<!-- 		<module>crm-restful-spring-boot-server</module> -->
+<!-- 		<module>crm-restful-client</module> -->
+>>>>>>> 1f8c51983cb8a3958bc44a4ac9d40599874527db
 	</modules>
 
 </project>

@@ -1,12 +1,16 @@
 package ca.magex.crm.test;
 
+import static ca.magex.crm.test.CrmAsserts.assertPage;
+import static ca.magex.crm.test.CrmAsserts.assertSinglePage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +53,7 @@ public class CrmTestSuite {
 	
 	public static void main(String[] args) {
 		CrmClient crm = new RestfulCrmClient("http://localhost:9002", Lang.ENGLISH);
+		Map<String, String> credentials = new HashMap<String, String>();
 
 		logger.info("Asserting that the server has not been setup yet");
 		assertFalse(crm.isInitialized());
@@ -56,6 +61,7 @@ public class CrmTestSuite {
 		logger.info("Setting up the initial user");
 		crm.initializeSystem("DevOps", new PersonName(null, "System", null, "Admin"), "scott@magex.ca", "admin", "admin");
 		assertTrue(crm.isInitialized());
+		credentials.put("admin", "admin");
 
 		logger.info("Try to create a new organization before logging in");
 		assertFalse(crm.canCreateOrganization());
@@ -64,31 +70,30 @@ public class CrmTestSuite {
 		} catch (UnauthenticatedException expected) { }
 
 		logger.info("Login as the system admin and try to create the organization");
-		crm.login("admin", "admin");
-		Page<OrganizationDetails> orgs = crm.findOrganizationDetails(new OrganizationsFilter(), new Paging(Sort.by("displayName")));
-		assertEquals(1L, orgs.getTotalElements());
+		crm.login("admin", credentials.get("admin"));
+		Page<OrganizationDetails> orgs = crm.findOrganizationDetails(crm.defaultOrganizationsFilter());
+		assertSinglePage(orgs, 1);
 		assertTrue(crm.canCreateOrganization());
 		crm.createOrganization("CRM Management", List.of("CRM"));
-
-		orgs = crm.findOrganizationDetails(new OrganizationsFilter(), new Paging(Sort.by("displayName")));
-		assertEquals(2L, orgs.getTotalElements());
+		orgs = crm.findOrganizationDetails(crm.defaultOrganizationsFilter());
+		assertSinglePage(orgs, 2);
 		
 		logger.info("Make sure the organization can be found using case-insensitive filters with the default no user or location.");
-		OrganizationDetails magex = crm.findOrganizationDetails(crm.findOrganizationDetails(new OrganizationsFilter().withDisplayName("crm"), new Paging(Sort.by("displayName"))).getContent().get(0).getOrganizationId());
-		assertEquals("CRM Management", magex.getDisplayName());
-		assertNull(magex.getMainLocationId());
-		assertNull(magex.getMainContactId());
+		OrganizationDetails org = crm.findOrganizationByDisplayName("crm");
+		assertEquals("CRM Management", org.getDisplayName());
+		assertNull(org.getMainLocationId());
+		assertNull(org.getMainContactId());
 		crm.logout();
 		
-		createCrmOrg(crm);
-		verifyCrmOrg(crm);
+		createCrmOrg(crm, credentials);
+		verifyCrmOrg(crm, credentials);
 		
 	}
 	
 	/**
 	 * Create the main administrator org thats has access to all organizations
 	 */
-	public static Identifier createCrmOrg(CrmClient crm) {
+	public static String createCrmOrg(CrmClient crm, Map<String, String> credentials) {
 		Identifier organizationId = crm.createOrganization("MageX", List.of("CRM")).getOrganizationId();
 
 		MailingAddress address = new MailingAddress("1234 Alta Vista Drive", "Ottawa", "Ontario", "Canada", "K3J 3I3");
@@ -101,11 +106,12 @@ public class CrmTestSuite {
 		Identifier scottId = crm.createPerson(organizationId, scottName, address, scottComm, scottJob).getPersonId();
 		crm.createUser(scottId, "magex", Arrays.asList("ORG_ADMIN", "CRM_ADMIN"));
 		crm.updateOrganizationMainContact(organizationId, scottId);
+		credentials.put("magex", crm.resetPassword(scottId));
 		
-		return organizationId;
+		return "magex";
 	}
 	
-	public static void verifyCrmOrg(CrmClient crm) {
+	public static void verifyCrmOrg(CrmClient crm, Map<String, String> credentials) {
 		logger.info("Make sure that the user needs to login before they can search for the organizations");
 		try {
 			crm.findOrganizationDetails(new OrganizationsFilter(), new Paging(Sort.by("displayName")));
@@ -293,20 +299,6 @@ public class CrmTestSuite {
 		assertPage(allUsers, 5, 5, 1, false, false, false, false);
 		assertEquals("karen", allUsers.getContent().get(0).getUsername());
 		assertEquals("christopher", allUsers.getContent().get(allLocationsResults.getContent().size() - 1).getUsername());
-	}
-	
-	public static <T> void assertSinglePage(Page<T> page, int totalElements) {
-		assertPage(page, totalElements, totalElements, 1, false, false, false, false);
-	}
-	
-	public static <T> void assertPage(Page<T> page, int totalElements, int pageSize, int pageNumber, boolean first, boolean previous, boolean next, boolean last) {
-		assertEquals(totalElements, page.getTotalElements());
-		assertEquals(pageNumber, page.getNumber());
-		assertEquals(pageSize, page.getContent().size());
-		assertEquals(first, page.isFirst());
-		assertEquals(previous, page.hasPrevious());
-		assertEquals(next, page.hasNext());
-		assertEquals(last, page.isLast());
 	}
 	
 }

@@ -1,16 +1,16 @@
 package ca.magex.crm.api.filters;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Locale;
 
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
-import org.springframework.util.ReflectionUtils;
 
 import ca.magex.crm.api.exceptions.ApiException;
 import ca.magex.crm.api.services.Crm;
@@ -50,12 +50,16 @@ public class Paging implements Pageable, Serializable {
 	}
 
 	public Paging(Sort sort) {
-		this(0, 10, sort);
+		this(1, 10, sort);
 	}
 
 	@Override
 	public int getPageNumber() {
 		return pageNumber;
+	}
+	
+	public Paging withPageNumber(int pageNumber) {
+		return new Paging(pageNumber, pageSize, sort);
 	}
 
 	@Override
@@ -63,14 +67,26 @@ public class Paging implements Pageable, Serializable {
 		return pageSize;
 	}
 
+	public Paging withPageSize(int pageSize) {
+		return new Paging(pageNumber, pageSize, sort);
+	}
+
 	@Override
 	public long getOffset() {
 		return offset;
 	}
 
+	public Paging withOffset(long offset) {
+		return new Paging(offset, pageSize, sort);
+	}
+
 	@Override
 	public Sort getSort() {
 		return sort;
+	}
+	
+	public Paging withSort(Sort sort) {
+		return new Paging(pageNumber, pageSize, sort);
 	}
 
 	@Override
@@ -79,17 +95,17 @@ public class Paging implements Pageable, Serializable {
 	}
 
 	@Override
-	public Pageable next() {
+	public Paging next() {
 		return new Paging(getOffset() + getPageSize(), getPageSize(), getSort());
 	}
 
 	@Override
-	public Pageable previousOrFirst() {
+	public Paging previousOrFirst() {
 		return new Paging(getOffset() - getPageSize() < 0 ? 0 : getOffset() - getPageSize(), getPageSize(), getSort());
 	}
 
 	@Override
-	public Pageable first() {
+	public Paging first() {
 		return new Paging(getOffset() + getPageSize(), getPageSize(), getSort());
 	}
 
@@ -105,6 +121,7 @@ public class Paging implements Pageable, Serializable {
 		@SuppressWarnings("unchecked")
 		@Override
 		public int compare(T o1, T o2) {
+			PropertyUtilsBean pub = new PropertyUtilsBean();
 			Iterator<Order> iterator = Paging.this.getSort().iterator();
 			while (iterator.hasNext()) {
 				Order order = iterator.next();
@@ -114,12 +131,10 @@ public class Paging implements Pageable, Serializable {
 					String[] vals = propertyName.split(":");
 					propertyName = vals[0];
 					propertyKey = vals[1];
-				}
-				Field field = ReflectionUtils.findField(o1.getClass(), propertyName);
-				if (field != null) {
-					ReflectionUtils.makeAccessible(field);
-					Object val1 = ReflectionUtils.getField(field, o1);
-					Object val2 = ReflectionUtils.getField(field, o2);
+				}					
+				try {					
+					Object val1 = pub.getProperty(o1, propertyName);
+					Object val2 = pub.getProperty(o2, propertyName);
 					/* localized use the key */
 					if (Localized.class.isAssignableFrom(val1.getClass())) {
 						if (propertyKey == null) {
@@ -141,6 +156,9 @@ public class Paging implements Pageable, Serializable {
 						}
 					}
 				}
+				catch(ReflectiveOperationException e) {
+					LoggerFactory.getLogger(getClass()).warn("Unable to sort by property '" + propertyName + "', " + e.getMessage());					
+				}				
 			}
 			/* everything matched */
 			return 0;

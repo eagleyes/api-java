@@ -1,6 +1,7 @@
 package ca.magex.crm.amnesia.services;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -8,11 +9,11 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ca.magex.crm.amnesia.AmnesiaDB;
 import ca.magex.crm.api.MagexCrmProfiles;
+import ca.magex.crm.api.exceptions.ItemNotFoundException;
 import ca.magex.crm.api.filters.PageBuilder;
 import ca.magex.crm.api.filters.Paging;
 import ca.magex.crm.api.filters.UsersFilter;
@@ -29,11 +30,11 @@ public class AmnesiaUserService implements CrmUserService {
 
 	private AmnesiaDB db;
 	
-	private PasswordEncoder passwordEncoder;
-
-	public AmnesiaUserService(AmnesiaDB db, PasswordEncoder passwordEncoder) {
+	private AmnesiaPasswordService passwords;
+	
+	public AmnesiaUserService(AmnesiaDB db) {
 		this.db = db;
-		this.passwordEncoder = passwordEncoder;
+		this.passwords = new AmnesiaPasswordService(db);
 	}
 
 	@Override
@@ -60,27 +61,39 @@ public class AmnesiaUserService implements CrmUserService {
 	
 	@Override
 	public User findUserByUsername(String username) {
-		return db.findByType(User.class).filter(u -> u.getUsername().equals(username)).findAny().get();
+		try {
+			return db.findByType(User.class).filter(u -> u.getUsername().equals(username)).findAny().get();
+		} catch (NoSuchElementException e) {
+			throw new ItemNotFoundException("Username '" + username + "'");
+		}
 	}	
 
 	@Override
 	public User updateUserRoles(Identifier userId, List<String> roles) {
+		User user = db.findUser(userId);
 		roles.forEach((role) -> {
 			db.findRoleByCode(role); // ensure role exists
 		});
-		return db.saveUser(db.findUser(userId).withRoles(roles));
+		return db.saveUser(user.withRoles(roles));
 	}
 
 	@Override
 	public boolean changePassword(Identifier userId, String currentPassword, String newPassword) {
-		db.updatePassword(userId.toString(), passwordEncoder.encode(newPassword));
-		return true;
+		if (!isValidPasswordFormat(newPassword))
+			return false;
+		User user = db.findUser(userId);
+		if (passwords.verifyPassword(user.getUsername(), currentPassword)) {
+			passwords.updatePassword(user.getUsername(), db.getPasswordEncoder().encode(newPassword));
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override
-	public boolean resetPassword(Identifier userId) {
-		db.updatePassword(userId.toString(), passwordEncoder.encode(db.generateId().toString()));
-		return true;
+	public String resetPassword(Identifier userId) {
+		return passwords.generateTemporaryPassword(db.findUser(userId).getUsername());
 	}
 
 	@Override
@@ -98,6 +111,7 @@ public class AmnesiaUserService implements CrmUserService {
 	
 	private Stream<User> applyFilter(UsersFilter filter) {
 		return db.findByType(User.class)
+			.filter(user -> StringUtils.isNotBlank(filter.getUsername()) ? user.getUsername().equals(filter.getUsername()) : true)
 			.filter(user -> StringUtils.isNotBlank(filter.getRole()) ? user.getRoles().contains(filter.getRole()) : true)
 			.filter(user -> filter.getStatus() != null ? filter.getStatus().equals(user.getStatus()) : true)
 			.filter(user -> filter.getPersonId() != null ? filter.getPersonId().equals(user.getPerson().getPersonId()) : true)
